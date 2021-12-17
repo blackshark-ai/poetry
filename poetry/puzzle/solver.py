@@ -137,7 +137,7 @@ class Solver:
                             operations.append(
                                 Install(package).skip("Already installed")
                             )
-                    elif package.version != pkg.version:
+                    elif str(package.version).split("+")[0] != str(pkg.version).split("+")[0]:
                         # Checking version
                         operations.append(Update(pkg, package, priority=depths[i]))
                     elif pkg.source_type and package.source_type != pkg.source_type:

@@ -429,25 +429,19 @@ class Installer:
             return 0
 
         print("")
-        releases = sorted(
-            metadata["releases"].keys(), key=cmp_to_key(_compare_versions)
-        )
-
-        if self._version and self._version not in releases:
-            print(colorize("error", "Version {} does not exist.".format(self._version)))
-
-            return None, None
+        # releases = sorted(
+        #     metadata["releases"].keys(), key=cmp_to_key(_compare_versions)
+        # )
+        #
+        # if self._version and self._version not in releases:
+        #     print(colorize("error", "Version {} does not exist.".format(self._version)))
+        #
+        #     return None, None
 
         version = self._version
         if not version:
-            for release in reversed(releases):
-                m = self.VERSION_REGEX.match(release)
-                if m.group(5) and not self.allows_prereleases():
-                    continue
-
-                version = release
-
-                break
+            print(colorize("error", "Version {} does not exist.".format(self._version)))
+            return None, None
 
         current_version = None
         if os.path.exists(POETRY_LIB):

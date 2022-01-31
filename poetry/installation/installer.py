@@ -223,6 +223,10 @@ class Installer:
                     raise ValueError("Extra [{}] is not specified.".format(extra))
 
             self._io.write_line("<info>Updating dependencies</>")
+
+            # TODO (kazesberger) use/read/parse custom poetry config from pyproject.toml and provide opportunity to
+            # configure "target environment markers" so we can skip any non-validating dependency markers
+
             solver = Solver(
                 self._package,
                 self._pool,

@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.8.1] - 2022-01-31
+
+### Changed
+
+- Changed dependency resolution to only consider desired target environment markers to speed up dependency resolution. Defaults to hard coded values.
+
 ## [1.1.8] - 2021-08-19
 
 ### Fixed

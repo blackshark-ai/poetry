@@ -5,7 +5,7 @@ import time
 
 from contextlib import contextmanager
 from tempfile import mkdtemp
-from typing import Any
+from typing import Any, Dict
 from typing import List
 from typing import Optional
 
@@ -477,6 +477,37 @@ class Provider:
                 continue
 
             if self._env and not dep.marker.validate(self._env.marker_env):
+                continue
+
+            def get_target_env_markers_from_env_vars() -> Dict[str, str]:
+                import os
+
+                ENV_VAR_PREFIX = "POETRY_MARKER_"
+                DEFAULT_HARDCODED_MARKERS_DICT = {'implementation_name': 'cpython',
+                                                  'implementation_version': '3.8.10',
+                                                  'interpreter_name': 'cp',
+                                                  'interpreter_version': '38',
+                                                  'os_name': 'posix',
+                                                  'platform_machine': 'x86_64',
+                                                  'platform_python_implementation': 'CPython',
+                                                  'platform_release': '5.11.0-46-generic',
+                                                  'platform_system': 'Linux',
+                                                  'platform_version': '#51~20.04.1-Ubuntu SMP Fri Jan 7 06:51:40 UTC 2022',
+                                                  'python_full_version': '3.8.10',
+                                                  'python_version': '3.8',
+                                                  'sys_platform': 'linux',
+                                                  'version_info': [3, 8, 10, 'final', 0]}
+
+                target_markers = []
+                for key, val in os.environ.items():
+                    if key[:14] == ENV_VAR_PREFIX:
+                        target_markers.append((key[len(ENV_VAR_PREFIX):].lower(), val))
+                if target_markers:
+                    return target_markers
+                else:
+                    return DEFAULT_HARDCODED_MARKERS_DICT
+
+            if not dep.marker.validate(get_target_env_markers_from_env_vars()):
                 continue
 
             if not package.is_root():

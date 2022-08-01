@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 
 from typing import TYPE_CHECKING
 
@@ -8,6 +9,7 @@ from poetry.utils._compat import Path
 
 from .chooser import InvalidWheelName
 from .chooser import Wheel
+from poetry.utils.helpers import get_file_hash
 
 
 if TYPE_CHECKING:
@@ -16,6 +18,8 @@ if TYPE_CHECKING:
 
     from poetry.config.config import Config
     from poetry.utils.env import Env
+
+_logger = logging.getLogger(__name__)
 
 
 class Chef:
@@ -41,11 +45,7 @@ class Chef:
     def is_wheel(self, archive):  # type: (Path) -> bool
         return archive.suffix == ".whl"
 
-    def get_cached_archive_for_link(self, link):  # type: (Link) -> Optional[Link]
-        # If the archive is already a wheel, there is no need to cache it.
-        if link.is_wheel:
-            pass
-
+    def get_cached_archive_for_link(self, link: Link) -> Link:
         archives = self.get_cached_archives_for_link(link)
 
         if not archives:
@@ -80,8 +80,20 @@ class Chef:
         archive_types = ["whl", "tar.gz", "tar.bz2", "bz2", "zip"]
         links = []
         for archive_type in archive_types:
-            for archive in cache_dir.glob("*.{}".format(archive_type)):
-                links.append(Link(archive.as_uri()))
+            for archive in cache_dir.glob(f"*.{archive_type}"):
+                accept = True
+                if link.hash is not None:
+                    real_hash = get_file_hash(
+                        archive, link.hash_name  # type: ignore[arg-type]
+                    )
+                    if real_hash != link.hash:
+                        _logger.warning(
+                            f"Cache of {link.filename} is corrupted. The file will be"
+                            " reloaded."
+                        )
+                        accept = False
+                if accept:
+                    links.append(Link(archive.as_uri()))
 
         return links
 

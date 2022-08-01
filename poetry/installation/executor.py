@@ -3,6 +3,7 @@ from __future__ import division
 
 import itertools
 import os
+import tempfile
 import threading
 
 from concurrent.futures import ThreadPoolExecutor
@@ -642,9 +643,11 @@ class Executor(object):
                 progress.start()
 
         done = 0
+
         archive = self._chef.get_cache_directory_for_link(link) / link.filename
         archive.parent.mkdir(parents=True, exist_ok=True)
-        with archive.open("wb") as f:
+
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
             for chunk in response.iter_content(chunk_size=4096):
                 if not chunk:
                     break
@@ -655,12 +658,11 @@ class Executor(object):
                     with self._lock:
                         progress.set_progress(done)
 
-                f.write(chunk)
-
+                tmp.write(chunk)
+            os.rename(tmp.name, archive)
         if progress:
             with self._lock:
                 progress.finish()
-
         return archive
 
     def _should_write_operation(self, operation):  # type: (Operation) -> bool

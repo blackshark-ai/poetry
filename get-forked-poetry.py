@@ -323,7 +323,7 @@ class Installer:
         r"(?:\+[^\s]+)?"
     )
 
-    REPOSITORY_URL = "https://github.com/Antaxify/poetry"
+    REPOSITORY_URL = "https://github.com/blackshark-ai/poetry"
     BASE_URL = REPOSITORY_URL + "/releases/download/"
     FALLBACK_BASE_URL = "doesntwork"
 

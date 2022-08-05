@@ -1,3 +1,5 @@
+import hashlib
+import io
 import os
 import re
 import shutil
@@ -133,3 +135,14 @@ def is_dir_writable(path, create=False):  # type: (Path, bool) -> bool
         return False
     else:
         return True
+
+def get_file_hash(filepath: Path, hash_name: str) -> str:
+    block_size = io.DEFAULT_BUFFER_SIZE
+    with open(filepath, "rb") as f:
+        res_hash = hashlib.new(hash_name)
+        while True:
+            buffer = f.read(block_size)
+            if not buffer:
+                break
+            res_hash.update(buffer)
+        return res_hash.hexdigest()

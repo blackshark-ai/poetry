@@ -647,7 +647,7 @@ class Executor(object):
         archive = self._chef.get_cache_directory_for_link(link) / link.filename
         archive.parent.mkdir(parents=True, exist_ok=True)
 
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(delete=False, dir=archive.parent) as tmp:
             for chunk in response.iter_content(chunk_size=4096):
                 if not chunk:
                     break
